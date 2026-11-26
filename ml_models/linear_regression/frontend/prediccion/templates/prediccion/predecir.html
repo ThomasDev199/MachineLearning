@@ -1,0 +1,469 @@
+{% load formato %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>¿Cuánto vale tu vivienda? Estimador de precio por m²</title>
+  <meta name="description" content="Ingresa los metros cuadrados de tu vivienda y obtén un precio estimado en pesos colombianos.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --papel: #edf2f5;
+      --papel-2: #e1e9ee;
+      --blanco: #fbfdfe;
+      --tinta: #0f2a43;
+      --tinta-suave: #4a6076;
+      --trazo: #b7c7d3;
+      --acento: #0b7c77;
+      --acento-osc: #086561;
+      --acento-claro: #d5ecea;
+      --error: #a8231b;
+      --error-fondo: #fbe9e7;
+      --fuente-titulo: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+      --fuente-texto: "Figtree", "Segoe UI", system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: var(--fuente-texto);
+      font-size: 1rem;
+      line-height: 1.55;
+      color: var(--tinta);
+      background-color: var(--papel);
+      /* papel milimetrado */
+      background-image:
+        linear-gradient(var(--papel-2) 1px, transparent 1px),
+        linear-gradient(90deg, var(--papel-2) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--acento);
+      outline-offset: 3px;
+    }
+
+    /* ---------- Barra superior ---------- */
+    .barra {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      max-width: 1120px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.4rem 1.5rem 0;
+      font-family: var(--fuente-titulo);
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -.01em;
+    }
+    .barra svg { width: 28px; height: 28px; flex: none; }
+
+    /* ---------- Escena principal ---------- */
+    .escena {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+      gap: 3rem;
+      align-items: center;
+      max-width: 1120px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3rem;
+    }
+
+    h1 {
+      margin: 0 0 .75rem;
+      font-family: var(--fuente-titulo);
+      font-weight: 800;
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      line-height: 1.04;
+      letter-spacing: -.03em;
+    }
+
+    .intro {
+      margin: 0 0 2rem;
+      max-width: 44ch;
+      color: var(--tinta-suave);
+      font-size: 1.08rem;
+    }
+
+    /* ---------- Formulario ---------- */
+    .campo-etiqueta {
+      display: block;
+      margin-bottom: .5rem;
+      font-weight: 600;
+    }
+
+    .campo-fila {
+      display: flex;
+      align-items: stretch;
+      background: var(--blanco);
+      border: 2px solid var(--tinta);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .campo-fila:focus-within {
+      outline: 3px solid var(--acento);
+      outline-offset: 3px;
+    }
+
+    .campo-input {
+      flex: 1;
+      min-width: 0;
+      padding: .9rem 1rem;
+      border: 0;
+      background: transparent;
+      font-family: var(--fuente-titulo);
+      font-weight: 700;
+      font-size: 1.9rem;
+      color: var(--tinta);
+    }
+    .campo-input:focus { outline: none; }
+    .campo-input::placeholder { color: #8da0b1; font-weight: 500; }
+
+    .campo-unidad {
+      display: flex;
+      align-items: center;
+      padding: 0 1.1rem;
+      background: var(--tinta);
+      color: var(--blanco);
+      font-family: var(--fuente-titulo);
+      font-weight: 700;
+      font-size: 1.15rem;
+    }
+
+    .campo-error {
+      margin: .5rem 0 0;
+      color: var(--error);
+      font-size: .95rem;
+      font-weight: 500;
+    }
+
+    .atajos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin: 1rem 0 1.5rem;
+    }
+    .atajo {
+      padding: .4rem .85rem;
+      border: 1.5px solid var(--trazo);
+      border-radius: 999px;
+      background: var(--blanco);
+      color: var(--tinta);
+      font: 500 .95rem var(--fuente-texto);
+      cursor: pointer;
+      transition: border-color .15s, background-color .15s;
+    }
+    .atajo:hover { border-color: var(--acento); background: var(--acento-claro); }
+
+    .boton {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      border: 0;
+      border-radius: 10px;
+      background: var(--acento);
+      color: #fff;
+      font: 700 1.1rem var(--fuente-titulo);
+      cursor: pointer;
+      transition: background-color .15s, transform .1s;
+    }
+    .boton:hover { background: var(--acento-osc); }
+    .boton:active { transform: translateY(1px); }
+    .boton[disabled] { opacity: .75; cursor: progress; }
+
+    /* ---------- Resultado y errores ---------- */
+    .resultado {
+      margin-top: 1.75rem;
+      padding: 1.4rem 1.5rem;
+      background: var(--blanco);
+      border: 2px solid var(--acento);
+      border-left-width: 10px;
+      border-radius: 10px;
+    }
+    .resultado-titulo {
+      margin: 0 0 .15rem;
+      color: var(--tinta-suave);
+      font-weight: 500;
+    }
+    .resultado-precio {
+      margin: 0;
+      font-family: var(--fuente-titulo);
+      font-weight: 800;
+      font-size: clamp(2rem, 6vw, 2.9rem);
+      line-height: 1.1;
+      letter-spacing: -.02em;
+      color: var(--acento-osc);
+    }
+    .resultado-detalle {
+      margin: .6rem 0 0;
+      color: var(--tinta-suave);
+      font-size: .95rem;
+    }
+
+    .aviso-error {
+      margin-top: 1.75rem;
+      padding: 1rem 1.25rem;
+      background: var(--error-fondo);
+      border: 2px solid var(--error);
+      border-radius: 10px;
+      color: var(--error);
+      font-weight: 500;
+    }
+
+    /* ---------- Plano ---------- */
+    .plano {
+      margin: 0;
+      padding: 1.25rem;
+      background: var(--blanco);
+      border: 2px solid var(--tinta);
+      border-radius: 14px;
+    }
+    .plano svg { display: block; width: 100%; height: auto; }
+    .plano figcaption {
+      margin-top: .75rem;
+      color: var(--tinta-suave);
+      font-size: .92rem;
+    }
+
+    .plano .rejilla { stroke: var(--papel-2); stroke-width: 1; }
+    .plano .casa {
+      fill: var(--acento-claro);
+      stroke: var(--tinta);
+      stroke-width: 3;
+    }
+    .plano .casa.vacia {
+      fill: transparent;
+      stroke: var(--trazo);
+      stroke-dasharray: 7 6;
+    }
+    .plano .cota {
+      stroke: var(--tinta-suave);
+      stroke-width: 1.5;
+      fill: none;
+    }
+    .plano .texto-cota {
+      fill: var(--tinta-suave);
+      font: 500 13px var(--fuente-texto);
+    }
+    .plano .texto-area {
+      fill: var(--tinta);
+      font: 800 26px var(--fuente-titulo);
+      letter-spacing: -.01em;
+    }
+
+    /* ---------- Footer ---------- */
+    .pie {
+      border-top: 2px solid var(--tinta);
+      background: var(--tinta);
+      color: #d4dee7;
+    }
+    .pie-interior {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: .5rem 1.5rem;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 1.25rem 1.5rem;
+      font-size: .95rem;
+    }
+    .pie strong { color: #fff; font-weight: 600; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 860px) {
+      .escena {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 2rem;
+        padding-top: 1.5rem;
+      }
+      .plano { order: 2; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="barra">
+    <svg viewBox="0 0 32 32" aria-hidden="true" fill="none" stroke="#0f2a43" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M4 15 16 5l12 10"/>
+      <path d="M7 13v14h18V13"/>
+      <path d="M13 27v-8h6v8" stroke="#0b7c77"/>
+    </svg>
+    <span>Precio por m²</span>
+  </div>
+
+  <main class="escena">
+    <section aria-labelledby="titulo">
+      <h1 id="titulo">¿Cuánto vale tu vivienda?</h1>
+      <p class="intro">Ingresa el área en metros cuadrados y calcula un precio estimado en pesos colombianos.</p>
+
+      <form method="post" id="formulario" novalidate>
+        {% csrf_token %}
+
+        <label class="campo-etiqueta" for="{{ form.surface.id_for_label }}">{{ form.surface.label }}</label>
+        <div class="campo-fila">
+          {{ form.surface }}
+          <span class="campo-unidad" aria-hidden="true">m²</span>
+        </div>
+        {% for e in form.surface.errors %}
+          <p class="campo-error" role="alert">{{ e }}</p>
+        {% endfor %}
+
+        <div class="atajos" role="group" aria-label="Áreas frecuentes">
+          <button type="button" class="atajo" data-m2="45">45 m²</button>
+          <button type="button" class="atajo" data-m2="70">70 m²</button>
+          <button type="button" class="atajo" data-m2="100">100 m²</button>
+          <button type="button" class="atajo" data-m2="150">150 m²</button>
+          <button type="button" class="atajo" data-m2="250">250 m²</button>
+        </div>
+
+        <button type="submit" class="boton" id="boton-enviar">Calcular precio</button>
+      </form>
+
+      {% if error %}
+        <div class="aviso-error" role="alert">{{ error }}</div>
+      {% endif %}
+
+      {% if resultado %}
+        <div class="resultado" aria-live="polite">
+          <p class="resultado-titulo">Precio estimado para {{ resultado.m2|floatformat:"-2" }} m²</p>
+          <p class="resultado-precio">{{ resultado.precio|cop }}</p>
+          <p class="resultado-detalle">
+            Pesos colombianos ({{ resultado.moneda }}). Equivale a {{ resultado.precio_m2|cop }} por m².
+          </p>
+        </div>
+      {% endif %}
+    </section>
+
+    <figure class="plano">
+      <svg viewBox="0 0 400 320" role="img" aria-labelledby="plano-titulo">
+        <title id="plano-titulo">Plano esquemático que crece según los metros cuadrados ingresados</title>
+        <defs>
+          <pattern id="rejilla" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M20 0H0V20" fill="none" class="rejilla"/>
+          </pattern>
+        </defs>
+        <rect width="400" height="320" fill="url(#rejilla)"/>
+
+        <rect id="casa" class="casa vacia" x="140" y="110" width="120" height="100" rx="3"/>
+
+        <!-- cota superior (ancho) -->
+        <path id="cota-ancho" class="cota" d=""/>
+        <text id="texto-ancho" class="texto-cota" text-anchor="middle" x="200" y="20"></text>
+
+        <!-- cota izquierda (alto) -->
+        <path id="cota-alto" class="cota" d=""/>
+        <text id="texto-alto" class="texto-cota" text-anchor="middle" x="20" y="160"></text>
+
+        <text id="texto-area" class="texto-area" text-anchor="middle" x="200" y="168">—</text>
+      </svg>
+      <figcaption>Dibujo ilustrativo: el área del plano crece con los metros cuadrados que ingresas.</figcaption>
+    </figure>
+  </main>
+
+  <footer class="pie">
+    <div class="pie-interior">
+      <span>&copy; {% now "Y" %} <strong>Thomas Zapata</strong>. Todos los derechos reservados.</span>
+      <span>Hecho con Django y FastAPI.</span>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var input = document.getElementById("{{ form.surface.id_for_label }}");
+      var casa = document.getElementById("casa");
+      var cotaAncho = document.getElementById("cota-ancho");
+      var cotaAlto = document.getElementById("cota-alto");
+      var textoAncho = document.getElementById("texto-ancho");
+      var textoAlto = document.getElementById("texto-alto");
+      var textoArea = document.getElementById("texto-area");
+
+      var ESCALA = 11;      // píxeles por metro
+      var MAX_M2 = 700;     // límite de dibujo
+      var PROPORCION = 1.25; // ancho / alto, ilustrativa
+      var CX = 200, CY = 160;
+
+      function formato(n, dec) {
+        return n.toLocaleString("es-CO", { maximumFractionDigits: dec, minimumFractionDigits: 0 });
+      }
+
+      function dibujar() {
+        var v = parseFloat(String(input.value).replace(",", "."));
+        var valido = isFinite(v) && v > 0;
+        var m2 = valido ? Math.min(v, MAX_M2) : 60;
+
+        var anchoM = Math.sqrt(m2 * PROPORCION);
+        var altoM = Math.sqrt(m2 / PROPORCION);
+        var w = anchoM * ESCALA;
+        var h = altoM * ESCALA;
+        var x = CX - w / 2;
+        var y = CY - h / 2;
+
+        casa.setAttribute("x", x);
+        casa.setAttribute("y", y);
+        casa.setAttribute("width", w);
+        casa.setAttribute("height", h);
+        casa.classList.toggle("vacia", !valido);
+
+        // cota superior
+        var yc = y - 14;
+        cotaAncho.setAttribute("d",
+          "M" + x + " " + (yc - 5) + "V" + (yc + 5) +
+          "M" + x + " " + yc + "H" + (x + w) +
+          "M" + (x + w) + " " + (yc - 5) + "V" + (yc + 5));
+        textoAncho.setAttribute("x", CX);
+        textoAncho.setAttribute("y", yc - 9);
+        textoAncho.textContent = valido ? formato(anchoM * (v / m2), 1) + " m" : "";
+
+        // cota izquierda
+        var xc = x - 14;
+        cotaAlto.setAttribute("d",
+          "M" + (xc - 5) + " " + y + "H" + (xc + 5) +
+          "M" + xc + " " + y + "V" + (y + h) +
+          "M" + (xc - 5) + " " + (y + h) + "H" + (xc + 5));
+        textoAlto.setAttribute("x", xc - 9);
+        textoAlto.setAttribute("y", CY);
+        textoAlto.setAttribute("transform", "rotate(-90 " + (xc - 9) + " " + CY + ")");
+        textoAlto.textContent = valido ? formato(altoM * (v / m2), 1) + " m" : "";
+
+        textoArea.setAttribute("y", CY + 9);
+        textoArea.textContent = valido ? formato(v, 2) + " m²" : "—";
+      }
+
+      input.addEventListener("input", dibujar);
+
+      document.querySelectorAll(".atajo").forEach(function (b) {
+        b.addEventListener("click", function () {
+          input.value = b.dataset.m2;
+          dibujar();
+          input.focus();
+        });
+      });
+
+      document.getElementById("formulario").addEventListener("submit", function () {
+        var boton = document.getElementById("boton-enviar");
+        boton.disabled = true;
+        boton.textContent = "Calculando…";
+      });
+
+      dibujar();
+    })();
+  </script>
+</body>
+</html>

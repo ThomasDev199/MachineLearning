@@ -7,9 +7,9 @@ from sklearn.linear_model import LinearRegression
 # # # Predecir precios de viviendas según la superficie en m2
 
 # Datos de entrenamiento X y Y
-x = np.array([[70], [80], [95], [100], [110], [120], [130], [140], [150]]) # metros cuadrados de superficie
+x = np.array([[70], [80], [95], [100], [110], [120], [130], [140], [150], [160], [170], [180], [190],[220],[250]]) # metros cuadrados de superficie
 
-y = np.array([420000000, 800000000,1700000, 1900000, 2500000, 3000000, 3500000, 4000000, 4500000]) # precios en pesos colombianos
+y = np.array([420000000, 800000000,1700000, 1900000, 2500000, 3000000, 3500000, 4000000, 4500000, 4500000,5000000,5500000,6000000,6500000,7000000]) # precios en pesos colombianos
 
 #Entrenar el modelode regresion lineal
 model = LinearRegression()
