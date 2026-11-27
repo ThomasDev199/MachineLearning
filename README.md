@@ -25,6 +25,8 @@ Para publicarla en Streamlit Community Cloud, selecciona este repositorio, la ra
 
 Desde la raíz del repositorio, en PowerShell:
 
+steamlit: [https://randomforestweb.streamlit.app/]
+
 ```powershell
 cd ml_models/randomforest
 python -m venv .venv
