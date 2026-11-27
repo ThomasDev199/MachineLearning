@@ -1,0 +1,9 @@
+Django>=5.2,<6.2
+fastapi
+uvicorn[standard]
+scikit-learn
+joblib
+numpy
+requests>=2.32,<3
+whitenoise>=6.9,<7
+a2wsgi>=1.10,<2
