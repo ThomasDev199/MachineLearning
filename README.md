@@ -5,7 +5,7 @@
 **Proyectos prácticos de aprendizaje automático con Python**
 
 <a href="https://randomforestweb.streamlit.app/"><img src="https://img.shields.io/badge/Random_Forest-Abrir_app-FF4B4B?logo=streamlit&logoColor=white" alt="Abrir app Random Forest"></a>
-<a href="[https://machinelearningapp.up.railway.app/](https://machinelearningapp.up.railway.app/)"><img src="https://img.shields.io/badge/Estimador_de_vivienda-Abrir_app-0B7C77?logo=railway&logoColor=white" alt="Abrir estimador de vivienda"></a>
+<a href="https://machinelearningapp.up.railway.app/"><img src="https://img.shields.io/badge/Estimador_de_vivienda-Abrir_app-0B7C77?logo=railway&logoColor=white" alt="Abrir estimador de vivienda"></a>
 <a href="https://machinelearningapp.up.railway.app/docs"><img src="https://img.shields.io/badge/API-FastAPI_docs-009688?logo=fastapi&logoColor=white" alt="Documentación FastAPI"></a>
 
 </div>
